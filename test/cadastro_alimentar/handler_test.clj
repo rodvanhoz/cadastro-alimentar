@@ -1,14 +1,73 @@
 (ns cadastro-alimentar.handler-test
   (:require [clojure.test :refer :all]
             [ring.mock.request :as mock]
+            [cheshire.core :as json]
             [cadastro-alimentar.handler :refer :all]))
 
-(deftest test-app
-  (testing "main route"
-    (let [response (app (mock/request :get "/"))]
-      (is (= (:status response) 200))
-      (is (= (:body response) "Hello World"))))
+(deftest handler-test
+  (testing "testing main route (invlid)")
+    (let [response (app (mock/request :get "/blabla"))]
+      (is (= (:status response) 404)))
 
-  (testing "not-found route"
-    (let [response (app (mock/request :get "/invalid"))]
-      (is (= (:status response) 404)))))
+  (testing "testing main route")
+  (let [response (app (mock/request :get "/"))]
+    (is (= (:status response) 200))))
+
+
+(deftest alimentos-test
+  (testing "testing get all"
+    (let [response (app (mock/request :get "/api/alimentos"))
+          body (json/parse-string (:body response) #(keyword %))
+          alimento (first body)]
+      (is (= (:status response) 200))
+      (is (> (count body) 0))
+      (is (int? (:id_alimento alimento)))
+      (is (not (empty? (:nome alimento))))
+      (is (int? (:id_tipo_alimento alimento)))
+      (is (not (empty? (:tipos-descricao alimento))))))
+    
+  (testing "testing geting alimento with id 1"
+    (let [response (app (mock/request :get "/api/alimentos/1"))
+          body (json/parse-string (:body response) #(keyword %))
+          alimento (first body)]
+      (is (= (:status response) 200))
+      (is (= (count body) 1))
+      (is (= (:id_alimento alimento) 1))
+      (is (= (:nome alimento) "Arroz Branco Cozido"))
+      (is (= (:id_tipo_alimento alimento) 2))
+      (is (= (:tipos-descricao alimento) "Grão/Cereal"))))
+
+  (testing "not-found status when inform invalid id"
+    (let [response (app (mock/request :get "/api/alimentos/9999999"))]
+      (is (= (:status response) 404))))
+  
+  (testing "invalid route"
+    (let [response (app (mock/request :get "/api/alimentos/invalid"))]
+      (is (= (:status response) 400)))))
+    
+(deftest refeicoes-test
+  (testing "testing get all"
+    (let [response (app (mock/request :get "/api/refeicoes"))
+          body (json/parse-string (:body response) #(keyword %))
+          refeicao (first body)]
+      (is (= (:status response) 200))
+      (is (> (count body) 0))
+      (is (int? (:id_refeicao refeicao)))
+      (is (not (empty? (:moment refeicao))))))
+    
+  (testing "testing geting refeicao with id 1"
+    (let [response (app (mock/request :get "/api/refeicoes/1"))
+          body (json/parse-string (:body response) #(keyword %))
+          refeicao (first body)]
+      (is (= (:status response) 200))
+      (is (= (count body) 1))
+      (is (= (:id_refeicao refeicao) 1))
+      (is (= (:moment refeicao) "2020-07-24T15:53:07Z"))))
+
+  (testing "not-found status when inform invalid id"
+    (let [response (app (mock/request :get "/api/refeicoes/9999999"))]
+      (is (= (:status response) 404))))
+  
+  (testing "invalid route"
+    (let [response (app (mock/request :get "/api/refeicoes/invalid"))]
+      (is (= (:status response) 400)))))
