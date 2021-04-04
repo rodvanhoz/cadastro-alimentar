@@ -64,10 +64,43 @@
       (is (= (:id_refeicao refeicao) 1))
       (is (= (:moment refeicao) "2020-07-24T15:53:07Z"))))
 
+  (testing "testind get all complete refeicoes information"
+    (let [response (app (mock/request :get "/api/refeicoes/completas/2020-07-24"))
+          body (json/parse-string (:body response) #(keyword %))
+          refeicao (first body)]
+      (is (= (:status response) 200))))
+
   (testing "not-found status when inform invalid id"
     (let [response (app (mock/request :get "/api/refeicoes/9999999"))]
       (is (= (:status response) 404))))
   
   (testing "invalid route"
     (let [response (app (mock/request :get "/api/refeicoes/invalid"))]
+      (is (= (:status response) 400)))))
+
+(deftest tipos-alimento-test
+  (testing "testing get all"
+    (let [response (app (mock/request :get "/api/tipos_alimento"))
+          body (json/parse-string (:body response) #(keyword %))
+          tipo-alimento (first body)]
+      (is (= (:status response) 200))
+      (is (> (count body) 0))
+      (is (int? (:id_tipo_alimento tipo-alimento)))
+      (is (not (empty? (:descricao tipo-alimento))))))
+    
+  (testing "testing geting refeicao with id 3"
+    (let [response (app (mock/request :get "/api/tipos_alimento/3"))
+          body (json/parse-string (:body response) #(keyword %))
+          tipo-alimento (first body)]
+      (is (= (:status response) 200))
+      (is (= (count body) 1))
+      (is (= (:id_tipo_alimento tipo-alimento) 3))
+      (is (= (:descricao tipo-alimento) "Carne Bovina"))))
+
+  (testing "not-found status when inform invalid id"
+    (let [response (app (mock/request :get "/api/tipos_alimento/9999999"))]
+      (is (= (:status response) 404))))
+  
+  (testing "invalid route"
+    (let [response (app (mock/request :get "/api/tipos_alimento/invalid"))]
       (is (= (:status response) 400)))))
