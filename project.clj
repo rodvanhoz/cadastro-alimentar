@@ -9,7 +9,8 @@
                  [ring/ring-json "0.4.0"]
                  [korma "0.4.3"]
                  [org.postgresql/postgresql "42.1.4"]
-                 [metosin/ring-http-response "0.9.0"]]
+                 [metosin/ring-http-response "0.9.0"]
+                 [clj-time "0.15.2"]]
   :plugins [[lein-ring "0.12.5"]]
   :ring {:handler cadastro-alimentar.handler/app}
   :profiles
