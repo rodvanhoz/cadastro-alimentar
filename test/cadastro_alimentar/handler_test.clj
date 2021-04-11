@@ -67,8 +67,12 @@
   (testing "testind get all complete refeicoes information"
     (let [response (app (mock/request :get "/api/refeicoes/completas/2020-07-24"))
           body (json/parse-string (:body response) #(keyword %))
-          refeicao (first body)]
-      (is (= (:status response) 200))))
+          refeicoes (:refeicoes (first body))
+          calculated-macros (:calculated-macros (first body))]
+      (is (= (:status response) 200))
+      (is (= (count refeicoes) 6))
+      (is (= (:kcal calculated-macros) 2.9367777600000005))
+      (is (= (:peso calculated-macros)  1170.0))))
 
   (testing "not-found status when inform invalid id"
     (let [response (app (mock/request :get "/api/refeicoes/9999999"))]
