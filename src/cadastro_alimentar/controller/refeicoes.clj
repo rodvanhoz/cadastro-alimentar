@@ -48,4 +48,5 @@
     (-> {}
         (assoc :date (utils.dates/str->date date))
         (assoc :refeicoes refeicoes)
-        (assoc :calculated-macros calculated-macros))))
+        (assoc :calculated-macros calculated-macros)
+        list)))

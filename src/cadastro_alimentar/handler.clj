@@ -22,7 +22,7 @@
     (context "/refeicoes" []
       (GET "/" [] (controller.refeicoes/get-all))
       (GET "/:id" [id] (controller.refeicoes/by-id id))
-      (GET "/completas/:date" [date] (controller.refeicoes/get-all-refeicoes-by-date date)))
+      (GET "/completas/:date" [date] (controller.refeicoes/get-all-refeicoes-by-date-with-calculated-macros date)))
     
     (context "/tipos_alimento" []
       (GET "/" [] (controller.tipos-alimento/get-all))
