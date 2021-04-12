@@ -13,12 +13,12 @@
       (log/info "Encontrado" (count result) "registro(s)")
       result))))
 
-(defn by-id
-  [id]
-  (let [result  (db.alimentos/by-id id)]
+(defn by-uuid
+  [uuid]
+  (let [result  (db.alimentos/by-uuid uuid)]
     (if (= (count result) 0)
       (not-found)
       (do
-        (log/info "Encontrado" (count result) "registro(s) com id:" id)
+        (log/info "Encontrado" (count result) "registro(s) com uuid: " uuid)
         result))))
   

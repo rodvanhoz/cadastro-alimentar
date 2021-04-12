@@ -1,20 +1,21 @@
-(ns cadastro-alimentar.db.tipos-alimento
+(ns cadastro-alimentar.db.tipos-alimentos
   (:require [korma.db :refer :all]
             [korma.core :refer :all]
             [clojure.java.jdbc :as sql]
             [clojure.tools.logging :as log]
             [cadastro-alimentar.db :as db]
-            [cadastro-alimentar.db.entities :as e]))
+            [cadastro-alimentar.db.entities :as e]
+            [cadastro-alimentar.utils.uuids :as utils.uuids]))
 
 
 (defn get
   [clauses]
-  (select e/tipos-alimento
+  (select e/tipos-alimentos
     (where clauses)))
 
 (defn get-all []
   (get true))
 
-(defn by-id
-  [id]
-  (get {:tipos_alimento.id_tipo_alimento (Integer/parseInt id)}))
+(defn by-uuid
+  [uuid]
+  (get {:tipos_alimentos.uuid (utils.uuids/uuid-from-string uuid)}))
