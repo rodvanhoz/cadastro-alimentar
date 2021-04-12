@@ -5,19 +5,19 @@
 (declare refeicoes tipos-alimento alimentos peso-alimentos)
 
 (defentity refeicoes
-  (pk :id_refeicao)
+  (pk :uuid)
   (table :refeicoes)
-  (many-to-many alimentos :peso_alimento {:lfk :id_refeicao :rfk :id_alimento}))
+  (many-to-many alimentos :pesos_alimentos {:lfk :refeicao_uuid :rfk :alimento_uuid}))
 
-(defentity tipos-alimento
-  (pk :id_tipo_alimento)
-  (table :tipos_alimento))
+(defentity tipos-alimentos
+  (pk :uuid)
+  (table :tipos_alimentos))
 
 (defentity alimentos
-  (pk :id_alimento)
+  (pk :uuid)
   (table :alimentos)
-  (belongs-to tipos-alimento {:fk :id_tipo_alimento}))
+  (belongs-to tipos-alimentos {:fk :tipo_alimento_uuid}))
 
-(defentity peso-alimentos
-  (pk :id_peso_alimento)
-  (table :peso_alimento))
+(defentity pesos-alimentos
+  (pk :uuid)
+  (table :pesos_alimentos))

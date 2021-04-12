@@ -4,7 +4,7 @@
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [cadastro-alimentar.controller.alimentos :as controller.alimentos]
             [cadastro-alimentar.controller.refeicoes :as controller.refeicoes]
-            [cadastro-alimentar.controller.tipos-alimento :as controller.tipos-alimento]
+            [cadastro-alimentar.controller.tipos-alimentos :as controller.tipos-alimentos]
             [ring.util.http-response :refer [ok bad-request unauthorized]]))
 
 (defn home
@@ -17,16 +17,16 @@
   (context "/api" []
     (context "/alimentos" []
       (GET "/" [] (controller.alimentos/get-all))
-      (GET "/:id" [id] (controller.alimentos/by-id id)))
+      (GET "/:uuid" [uuid] (controller.alimentos/by-uuid uuid)))
     
     (context "/refeicoes" []
       (GET "/" [] (controller.refeicoes/get-all))
-      (GET "/:id" [id] (controller.refeicoes/by-id id))
+      (GET "/:uuid" [uuid] (controller.refeicoes/by-uuid uuid))
       (GET "/completas/:date" [date] (controller.refeicoes/get-all-refeicoes-by-date-with-calculated-macros date)))
     
-    (context "/tipos_alimento" []
-      (GET "/" [] (controller.tipos-alimento/get-all))
-      (GET "/:id" [id] (controller.tipos-alimento/by-id id))))
+    (context "/tipos_alimentos" []
+      (GET "/" [] (controller.tipos-alimentos/get-all))
+      (GET "/:uuid" [uuid] (controller.tipos-alimentos/by-uuid uuid))))
   (route/not-found "Not Found"))
 
 (defn wrap-bad-request

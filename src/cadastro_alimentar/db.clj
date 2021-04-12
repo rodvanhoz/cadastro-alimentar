@@ -17,6 +17,6 @@
   
 (defn- db-conn []
   (korma/postgres
-      {:db "cadastro_alimentar" :user "postgres" :password "Geforce560ti" :host "192.168.0.11" :port "5432"}))
+      {:db "cadastro_alimentar2" :user "postgres" :password "Geforce560ti" :host "192.168.0.11" :port "5432"}))
 
 (defdb db (db-conn))
