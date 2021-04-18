@@ -8,6 +8,8 @@
             [clj-time.predicates :as pr])
   (:import (java.util Properties)))
 
+(defn now [] (c/to-sql-time (t/now)))
+
 (defn format-date-with-bar
   [date]
   (f/unparse (f/formatter "dd/MM/yyyy") (c/from-date date)))
@@ -35,4 +37,10 @@
 (defn str->date
   [date]
   (c/to-timestamp date))
+
+(defn java-date-now []
+  (new java.util.Date))
+
+(defn clj-time-now []
+  (t/now))
   

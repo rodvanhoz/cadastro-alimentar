@@ -21,12 +21,37 @@
   [uuid]
   (get {:refeicoes.uuid (utils.uuids/uuid-from-string uuid)}))
 
+(defn by-descricao
+  [descricao]
+  (get {:refeicoes.descricao descricao}))
+
+(defn insert!
+  [refeicao]
+  (insert e/refeicoes
+          (values refeicao)))
+
+(defn update!
+  [fields clauses]
+  (update e/refeicoes
+          (set-fields (-> fields))
+          (where clauses)))
+
+(defn delete-by-uuid
+  [uuid]
+  (delete e/refeicoes
+    (where {:uuid (utils.uuids/uuid-from-string uuid)})))
+
+(defn delete-by-decricao
+  [descricao]
+  (delete e/refeicoes
+    (where {:refeicoes.descricao descricao})))
+  
 (defn get-all-refeicoes-by-date
   [date]
   (let [start-date (utils.dates/str->sql-date-start-of-day date)
         final-date (utils.dates/str->sql-date-end-of-day date)]
     (select [e/refeicoes :refeicoes]
-      (fields [:refeicoes.uuid :refeicao-uuid] [:refeicoes.moment :moment] [:pesos-alimentos.peso :peso] 
+      (fields [:refeicoes.uuid :refeicao-uuid] [:refeicoes.moment :moment] [:refeicoes.descricao :refeicaoes-descricao] [:pesos-alimentos.peso :peso] 
               [:alimentos.uuid :alimento-uuid] [:alimentos.nome :nome] [:alimentos.peso :peso-unitario] [:alimentos.qtde_carboidrato :qtde-carbo] [:alimentos.qtde_proteinas :qtde-prot]
               [:alimentos.qtde_gorduras :qtde-gordura] [:tipos.descricao :tipos-descricao])
     
@@ -36,3 +61,4 @@
       
       (where (-> {}
                 (cond-> date (assoc :refeicoes.moment [between [start-date final-date]])))))))
+    
