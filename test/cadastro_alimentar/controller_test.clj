@@ -8,6 +8,7 @@
             [cadastro-alimentar.utils.uuids :as utils.uuids]))
 
 (def tipo-alimento-teste1 {:uuid (utils.uuids/uuid) :descricao "Alimento Teste Update"})
+(def refeicao-teste {:uuid "1478fa0b-d996-489e-a1f0-649b0d28d7ee" :descricao "refeicao teste unitario"})
 
 (deftest should-calculate-macros 
   (testing "should calculate macros based in information of refeicoes"
@@ -45,5 +46,27 @@
   (testing "should not delete a tipo-alimento by uuid"
     (is (= (controller.tipos-alimentos/delete-by-descricao "Alimento Teste Update"))))
 
-  (testing "should not delete a tipo-alimento by uuid"
+  (testing "should not delete a tipo-alimento by uuid when it not exists"
     (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: Alimento Teste Update" (:processed (controller.tipos-alimentos/delete-by-descricao "Alimento Teste Update"))))))
+
+(deftest testing-refeicoes
+  (testing "should create a refeicao"
+    (let [refeicao (controller.refeicoes/create-refeicao refeicao-teste)]
+      (is (= (count refeicao) 1))))
+      
+  (testing "should not create a refeicao when it exists"
+    (is (thrown-with-msg? Exception #"refeicao ja existe: 1478fa0b-d996-489e-a1f0-649b0d28d7ee" (:processed (controller.refeicoes/create-refeicao refeicao-teste)))))
+    
+  (testing "should update a refeicao"
+    (let [result (controller.refeicoes/update-refeicao (:uuid refeicao-teste) {:descricao "refeicao teste unitario update"})]
+      (is (= (count result) 1))
+      (is (= (:descricao (first result)) "refeicao teste unitario update"))))
+  
+  (testing "should not update refeicao when it not exists"
+    (is (thrown-with-msg? Exception #"UPDATE - refeicao nao encontrado: 7e827d74-d02b-4371-8b9f-435aefde96d5" (controller.refeicoes/update-refeicao "7e827d74-d02b-4371-8b9f-435aefde96d5" {:descricao "refeicao teste unitario update"}))))
+    
+  (testing "should not delete a refeicoes by uuid"
+    (is (= (controller.refeicoes/delete-by-uuid (:uuid refeicao-teste)))))
+
+  (testing "should not delete a refeicoes by uuid when it not exists"
+    (is (thrown-with-msg? Exception #"refeicao nao encontrado: 1478fa0b-d996-489e-a1f0-649b0d28d7ee" (:processed (controller.refeicoes/delete-by-uuid (:uuid refeicao-teste)))))))
