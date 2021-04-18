@@ -51,9 +51,7 @@
         (log/info "refeicao criado: " refeicao-builder)
         (-> refeicao-builder
             list))
-      (do
-        (throw (Exception. (str "refeicao ja existe: " (:uuid refeicao-builder))))
-        (conflict)))))
+      (throw (Exception. (str "refeicao ja existe: " (:uuid refeicao-builder)))))))
 
 (defn update-refeicao
   [refeicao-uuid refeicao-fields]

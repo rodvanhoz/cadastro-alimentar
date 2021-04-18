@@ -8,7 +8,7 @@
   []
   (let [result  (db.alimentos/get-all)]
     (if (= (count result) 0)
-      (not-found)
+      ()
     (do
       (log/info "Encontrado" (count result) "registro(s)")
       result))))
@@ -17,7 +17,7 @@
   [uuid]
   (let [result  (db.alimentos/by-uuid uuid)]
     (if (= (count result) 0)
-      (not-found)
+      ()
       (do
         (log/info "Encontrado" (count result) "registro(s) com uuid: " uuid)
         result))))

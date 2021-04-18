@@ -9,7 +9,7 @@
   []
   (let [result  (db.tipos-alimentos/get-all)]
     (if (= (count result) 0)
-      nil
+      ()
     (do
       (log/info "Encontrado" (count result) "registro(s)")
       result))))
@@ -18,7 +18,7 @@
   [uuid]
   (let [result  (db.tipos-alimentos/by-uuid uuid)]
     (if (= (count result) 0)
-      nil
+      ()
       (do
         (log/info "Encontrado" (count result) "registro(s) com uuid:" uuid)
         result))))
@@ -27,7 +27,7 @@
   [descricao]
   (let [result  (db.tipos-alimentos/by-descricao descricao)]
     (if (= (count result) 0)
-      nil
+      ()
       (do
         (log/info "Encontrado" (count result) "registro(s) com descricao:" descricao)
         result))))
@@ -39,9 +39,7 @@
       (do
         (db.tipos-alimentos/insert!  tipo-alimento)
         (log/info "tipo-alimento criado: " (:uuid tipo-alimento)))
-      (do
-        (throw (Exception. (str "tipo-alimento ja existe: " descricao)))
-        (conflict)))))
+      (throw (Exception. (str "tipo-alimento ja existe: " descricao))))))
 
 (defn update-tipo-alimento
   [tipo-alimento]
@@ -52,8 +50,7 @@
       (do 
         (db.tipos-alimentos/update! field-clauses where-clauses)
         (log/info "tipo-alimento atualizado com sucesso: " (first tp)))
-      (do
-        (throw (Exception. (str "UPDATE - tipo-alimento nao encontrado: " (:descricao tipo-alimento))))))))
+      (throw (Exception. (str "UPDATE - tipo-alimento nao encontrado: " (:descricao tipo-alimento)))))))
 
 (defn delete-by-descricao
   [descricao]
