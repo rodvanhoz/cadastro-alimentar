@@ -9,6 +9,7 @@
 
 (def tipo-alimento-teste1 {:uuid (utils.uuids/uuid) :descricao "Alimento Teste Update"})
 (def refeicao-teste {:uuid "1478fa0b-d996-489e-a1f0-649b0d28d7ee" :descricao "refeicao teste unitario"})
+(def alimento-teste {:uuid "31dbcee6-9e58-4ee8-ab52-d0d2e5d9d3d8" :nome "alimento teste" :peso 1 :qtde-carboidrato 0.281 :qtde-gorduras 0.002 :qtde-proteinas 0.025 :tipo-alimento-uuid "5e684cd9-ab77-4bcb-96f5-a3e46d82c454"})
 
 (deftest should-calculate-macros 
   (testing "should calculate macros based in information of refeicoes"
@@ -70,3 +71,30 @@
 
   (testing "should not delete a refeicoes by uuid when it not exists"
     (is (thrown-with-msg? Exception #"refeicao nao encontrado: 1478fa0b-d996-489e-a1f0-649b0d28d7ee" (:processed (controller.refeicoes/delete-by-uuid (:uuid refeicao-teste)))))))
+
+(deftest testing-alimentos
+  (testing "should create a alimento"
+    (let [alimento (controller.alimentos/create-alimento alimento-teste)]
+      (is (= (count alimento) 1))))
+      
+  (testing "should not create a alimento when if not exists"
+    (is (thrown-with-msg? Exception #"alimento ja existe: 31dbcee6-9e58-4ee8-ab52-d0d2e5d9d3d8" (:processed (controller.alimentos/create-alimento alimento-teste)))))
+          
+  (testing "should update a alimento"
+    (let [result (controller.alimentos/update-alimento (:uuid alimento-teste) {:nome "alimento teste update" :qtde-carboidrato 0.555 :qtde-gorduras 0.222 :qtde-proteinas 0.1})]
+      (is (= (count result) 1))
+      (is (= (:nome (first result)) "alimento teste update"))
+      (is (= (:qtde-carboidrato (first result))  0.555))
+      (is (= (:qtde-gordduras (first result)) 0.222))
+      (is (= (:qtde-proteinas (first result)) 0.1))))
+
+  (testing "should not update alimento when it not exists"
+    (is (thrown-with-msg? Exception #"UPDATE - alimento nao encontrado: d9619362-b603-4b2f-8c9c-9ff5f2c70478" 
+                          (controller.alimentos/update-alimento "d9619362-b603-4b2f-8c9c-9ff5f2c70478" 
+                                                                {:nome "alimento teste update" :qtde-carboidrato 0.555 :qtde-gorduras 0.222 :qtde-proteinas 0.1}))))
+
+  (testing "should not delete a alimento by uuid"
+    (is (= (controller.alimentos/delete-by-uuid (:uuid alimento-teste)))))
+
+  (testing "should not delete a alimento by uuid when it not exists"
+    (is (thrown-with-msg? Exception #"alimento nao encontrado: 31dbcee6-9e58-4ee8-ab52-d0d2e5d9d3d8" (:processed (controller.alimentos/delete-by-uuid (:uuid alimento-teste)))))))

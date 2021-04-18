@@ -22,7 +22,7 @@
       (is (= (:status response) 200))
       (is (> (count body) 0))
       (is (not (empty? (:nome alimento))))
-      (is (not (empty? (:tipos-descricao alimento))))))
+      (is (not (empty? (:tipo-alimento-descricao alimento))))))
     
   (testing "testing geting alimento with by uuid 1864c9a4-2dac-48d6-9a9f-12cc91b1cb50"
     (let [response (app (mock/request :get "/api/alimentos/1864c9a4-2dac-48d6-9a9f-12cc91b1cb50"))
@@ -32,7 +32,7 @@
       (is (= (count body) 1))
       (is (= (:uuid alimento) "1864c9a4-2dac-48d6-9a9f-12cc91b1cb50"))
       (is (= (:nome alimento) "Arroz Branco Cozido"))
-      (is (= (:tipos-descricao alimento) "Grão/Cereal"))))
+      (is (= (:tipo-alimento-descricao alimento) "Grão/Cereal"))))
 
   (testing "not-found status when inform not exist uuid"
     (let [response (app (mock/request :get "/api/alimentos/d0659c2d-3564-484f-8ed7-b4f4bd6c9161"))]
