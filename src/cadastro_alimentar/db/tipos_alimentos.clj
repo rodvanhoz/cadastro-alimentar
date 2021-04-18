@@ -19,3 +19,23 @@
 (defn by-uuid
   [uuid]
   (get {:tipos_alimentos.uuid (utils.uuids/uuid-from-string uuid)}))
+
+(defn by-descricao
+  [descricao]
+  (get {:tipos_alimentos.descricao descricao}))
+
+(defn insert!
+  [tipo-alimento]
+  (insert e/tipos-alimentos
+          (values tipo-alimento)))
+
+(defn update!
+  [fields clauses]
+  (update e/tipos-alimentos
+          (set-fields (-> fields))
+          (where clauses)))
+
+(defn delete-by-descricao
+  [descricao]
+  (delete e/tipos-alimentos
+    (where {:descricao descricao})))
