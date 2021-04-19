@@ -1,6 +1,7 @@
 (ns cadastro-alimentar.handler
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
+            [clojure.tools.logging :as log]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [cadastro-alimentar.utils.adapters :as utils.adapters]
             [cadastro-alimentar.controller.alimentos :as controller.alimentos]
@@ -12,7 +13,7 @@
   [_]
   {:status 200
     :body {:status "ok"}})
-
+  
 (defn alimentos-get-all
   []
   (let [result (controller.alimentos/get-all)]
@@ -87,15 +88,26 @@
       (POST "/" {:keys [body]} (tipos-alimentos-insert body))))
   (route/not-found "Not Found"))
 
-(defn wrap-bad-request
+(defn log-request
   [handler]
   (fn [request]
-      (try (handler request)
-        (catch Exception e
-        (bad-request)))))
+    (log/info "[REQUEST] " (get-in request []))
+    (handler request)))
+  
+(defn wrap-exception
+  [handler]
+  (fn [request]
+    (try (handler request)
+          (catch Exception e
+            (do
+              (log/error (.getMessage e))
+              {:status 400
+               :body (.getMessage e)})))))
+            
 
 (def app
   (-> app-routes
-      (wrap-bad-request)
+      (wrap-exception)
       (wrap-json-response)
-      (wrap-json-body {:keywords? true})))
+      (wrap-json-body {:keywords? true})
+      (log-request)))
