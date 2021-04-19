@@ -2,10 +2,11 @@
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
+            [cadastro-alimentar.utils.adapters :as utils.adapters]
             [cadastro-alimentar.controller.alimentos :as controller.alimentos]
             [cadastro-alimentar.controller.refeicoes :as controller.refeicoes]
             [cadastro-alimentar.controller.tipos-alimentos :as controller.tipos-alimentos]
-            [ring.util.http-response :refer [ok bad-request unauthorized not-found]]))
+            [ring.util.http-response :refer [ok bad-request unauthorized not-found created]]))
 
 (defn home
   [_]
@@ -61,6 +62,13 @@
       (not-found)
       result)))
 
+(defn tipos-alimentos-insert
+  [body]
+  (let [result (controller.tipos-alimentos/create-tipo-alimento body)]
+    (if (= (count result) 1)
+      (created)
+      (bad-request))))
+
 (defroutes app-routes
   (GET "/" [] home)
   (context "/api" []
@@ -75,7 +83,8 @@
     
     (context "/tipos_alimentos" []
       (GET "/" [] (tipos-alimentos-get-all))
-      (GET "/:uuid" [uuid] (tipos-alimentos-get-by-uuid uuid))))
+      (GET "/:uuid" [uuid] (tipos-alimentos-get-by-uuid uuid))
+      (POST "/" {:keys [body]} (tipos-alimentos-insert body))))
   (route/not-found "Not Found"))
 
 (defn wrap-bad-request
@@ -88,5 +97,5 @@
 (def app
   (-> app-routes
       (wrap-bad-request)
-      wrap-json-response
-      wrap-json-body))
+      (wrap-json-response)
+      (wrap-json-body {:keywords? true})))

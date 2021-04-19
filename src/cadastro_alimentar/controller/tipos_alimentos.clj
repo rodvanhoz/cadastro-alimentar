@@ -33,24 +33,26 @@
         result))))
 
 (defn create-tipo-alimento
-  [descricao]
-  (let [tipo-alimento (logic.tipos-alimentos/build-tipo-alimento descricao)]
-    (if (= (count (by-descricao descricao)) 0)
+  [tipo-alimento]
+  (let [tipo-alimento-builded (logic.tipos-alimentos/build-tipo-alimento tipo-alimento)]
+    (if (= (count (by-descricao (:descricao tipo-alimento-builded))) 0)
       (do
-        (db.tipos-alimentos/insert!  tipo-alimento)
-        (log/info "tipo-alimento criado: " (:uuid tipo-alimento)))
-      (throw (Exception. (str "tipo-alimento ja existe: " descricao))))))
+        (db.tipos-alimentos/insert!  tipo-alimento-builded)
+        (log/info "tipo-alimento criado: " (:uuid tipo-alimento-builded))
+        (-> tipo-alimento-builded
+            list))
+      (throw (Exception. (str "tipo-alimento ja existe: " (:descricao tipo-alimento-builded)))))))
 
 (defn update-tipo-alimento
-  [tipo-alimento]
-  (let [where-clauses (logic.tipos-alimentos/create-clauses (-> {} (assoc :uuid (:uuid tipo-alimento))))
-        field-clauses (logic.tipos-alimentos/build-fields-clauses tipo-alimento)
-        tp (by-uuid (:uuid tipo-alimento))]
+  [tipo-alimento-uuid tipo-alimento-fields]
+  (let [where-clauses (logic.tipos-alimentos/create-clauses (-> {} (assoc :uuid tipo-alimento-uuid)))
+        field-clauses (logic.tipos-alimentos/build-fields-clauses tipo-alimento-fields)
+        tp (by-uuid tipo-alimento-uuid)]
     (if (= (count tp) 1)
       (do 
         (db.tipos-alimentos/update! field-clauses where-clauses)
         (log/info "tipo-alimento atualizado com sucesso: " (first tp)))
-      (throw (Exception. (str "UPDATE - tipo-alimento nao encontrado: " (:descricao tipo-alimento)))))))
+      (throw (Exception. (str "UPDATE - tipo-alimento nao encontrado: " (:descricao tipo-alimento-fields)))))))
 
 (defn delete-by-descricao
   [descricao]

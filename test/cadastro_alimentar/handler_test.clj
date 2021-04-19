@@ -4,6 +4,8 @@
             [cheshire.core :as json]
             [cadastro-alimentar.handler :refer :all]))
 
+(def tipo-alimento-teste {:uuid "a3770a85-eb2a-4994-8502-fa8ebaea9fa3" :descricao "Alimento Teste"})
+
 (deftest handler-test
   (testing "testing main route (invlid)")
     (let [response (app (mock/request :get "/blabla"))]
@@ -99,6 +101,14 @@
   (testing "not-found status when inform not exist uuid"
     (let [response (app (mock/request :get "/api/tipos_alimentos/13dde849-a5a5-473e-b74e-5543a7de83a1"))]
       (is (= (:status response) 404))))
+
+  (testing "insert a tipo-alimento"
+    (let [response (app (-> (mock/request :post "/api/tipos_alimentos")
+                            (mock/json-body tipo-alimento-teste)
+                            ;(mock/body (json/generate-string tipo-alimento-teste))
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))]
+      (is (= (:status response) 201))))
   
   (testing "invalid route"
     (let [response (app (mock/request :get "/api/tipos_alimentos/invalid"))]

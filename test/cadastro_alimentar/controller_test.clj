@@ -7,7 +7,7 @@
             [cadastro-alimentar.utils.dates :as utils.dates]
             [cadastro-alimentar.utils.uuids :as utils.uuids]))
 
-(def tipo-alimento-teste1 {:uuid (utils.uuids/uuid) :descricao "Alimento Teste Update"})
+(def tipo-alimento-teste {:uuid "6c7ef568-be99-4093-a3a6-ecfcfe13fd3a" :descricao "Alimento Teste"})
 (def refeicao-teste {:uuid "1478fa0b-d996-489e-a1f0-649b0d28d7ee" :descricao "refeicao teste unitario"})
 (def alimento-teste {:uuid "31dbcee6-9e58-4ee8-ab52-d0d2e5d9d3d8" :nome "alimento teste" :peso 1 :qtde-carboidrato 0.281 :qtde-gorduras 0.002 :qtde-proteinas 0.025 :tipo-alimento-uuid "5e684cd9-ab77-4bcb-96f5-a3e46d82c454"})
 
@@ -24,31 +24,32 @@
 
 (deftest testing-tipo-alimento
   (testing "should create a tipo-alimento"
-    (let [tipo-alimento (controller.tipos-alimentos/create-tipo-alimento "Alimento Teste")
+    (let [tipo-alimento (controller.tipos-alimentos/create-tipo-alimento tipo-alimento-teste)
           tipo-alimento-saved (controller.tipos-alimentos/by-descricao "Alimento Teste")]
       (is (= (str (:descricao tipo-alimento-saved) "Alimento Teste")))))
 
   (testing "should not create a tipo-alimento when it exists"
-      (is (thrown-with-msg? Exception #"tipo-alimento ja existe: Alimento Teste" (:processed (controller.tipos-alimentos/create-tipo-alimento "Alimento Teste")))))
+      (is (thrown-with-msg? Exception #"tipo-alimento ja existe: Alimento Teste" (:processed (controller.tipos-alimentos/create-tipo-alimento tipo-alimento-teste)))))
 
   (testing "should update a tipo-alimento"
-    (let [tipo-alimento-teste (first (controller.tipos-alimentos/by-descricao "Alimento Teste"))
-          tipo-alimento (-> {}
+    (let [tipo-alimento (-> {}
                             (assoc :uuid (:uuid tipo-alimento-teste))
                             (assoc :descricao "Alimento Teste Update"))]
-      (controller.tipos-alimentos/update-tipo-alimento tipo-alimento)
+      (controller.tipos-alimentos/update-tipo-alimento (:uuid tipo-alimento-teste) 
+                                                       {:descricao "tipo alimento teste update"})
       (let [tipo-alimento-saved (controller.tipos-alimentos/by-descricao "Alimento Teste Update")]
         (is (= (str (:descricao tipo-alimento-saved) "Alimento Teste Update"))))))
       
 
   (testing "should not update a tipo-alimento when not it exists"
-      (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: Alimento Teste" (:processed (controller.tipos-alimentos/update-tipo-alimento tipo-alimento-teste1)))))
+      (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: tipo alimento teste update" (:processed (controller.tipos-alimentos/update-tipo-alimento "3158db7c-9f7f-4857-aa0c-3afc2ee35520" 
+                                                                                                                                                    {:descricao "tipo alimento teste update"})))))
       
   (testing "should not delete a tipo-alimento by uuid"
-    (is (= (controller.tipos-alimentos/delete-by-descricao "Alimento Teste Update"))))
+    (is (= (controller.tipos-alimentos/delete-by-descricao "tipo alimento teste update"))))
 
   (testing "should not delete a tipo-alimento by uuid when it not exists"
-    (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: Alimento Teste Update" (:processed (controller.tipos-alimentos/delete-by-descricao "Alimento Teste Update"))))))
+    (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: tipo alimento teste update" (:processed (controller.tipos-alimentos/delete-by-descricao "tipo alimento teste update"))))))
 
 (deftest testing-refeicoes
   (testing "should create a refeicao"
