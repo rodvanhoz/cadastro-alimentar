@@ -103,7 +103,6 @@
   
   (testing "should get a complete refeicao"
     (let [result (controller.refeicoes/get-all-refeicoes-by-date-with-calculated-macros "2021-04-10")]
-      (prn "******" result)
       (is (= (count result) 1))
       (is (= (:date (first result)) (utils.dates/str->date "2021-04-10")))
       
