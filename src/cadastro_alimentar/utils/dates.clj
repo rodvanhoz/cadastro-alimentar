@@ -5,10 +5,20 @@
             [clj-time.format :as f]
             [clojure.string :as str]
             [clojure.spec.alpha :as s]
-            [clj-time.predicates :as pr])
+            [clj-time.predicates :as pr]
+            [clj-time.local :as l])
   (:import (java.util Properties)))
 
 (defn now [] (c/to-sql-time (t/now)))
+(defn get-utc [] 3)
+
+(defn from-sql-date
+  [date]
+  (c/from-sql-date date))
+
+(defn string->to-local-date-time
+  [date]
+  (l/to-local-date-time date))
 
 (defn format-date-with-bar
   [date]
@@ -38,9 +48,37 @@
   [date]
   (c/to-timestamp date))
 
+(defn str->date-with-utc
+  [date]
+  (c/to-timestamp (t/plus date (t/hours (get-utc)))))
+
 (defn java-date-now []
   (new java.util.Date))
 
 (defn clj-time-now []
   (t/now))
+
+(defn string->java-date
+  [date]
+  (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd") date))
+
+(defn java-date->string
+  [date]
+  (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") date))
+
+(defn iso-8601-string-date->formatted-date-with-bar
+  [iso-date]
+  (f/unparse (f/formatter "dd/MM/yyyy HH:mm:ss") (c/from-string iso-date)))
+
+(defn iso-8601-string-date->joda-date-time-with-utc
+  [iso-date]
+  (c/to-timestamp (t/plus (c/to-date-time iso-date) (t/hours (get-utc)))))
+  
+(defn from-date
+  [date]
+  (c/from-date date))
+
+(defn create-date-with-no-time
+  [date]
+  (t/date-time (t/year date) (t/month date) (t/day date)))
   

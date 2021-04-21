@@ -132,6 +132,15 @@
   (testing "not-found status when inform not exist uuid"
     (let [response (app (mock/request :get "/api/refeicoes/38200d40-c29c-488f-acb9-6ef183989672"))]
       (is (= (:status response) 404))))
+
+  ;; (testing "insert a new complete refeicao"
+  ;;   (let [response (app (-> (mock/request :post "/api/refeicoes")
+  ;;             (mock/json-body tipo-alimento-teste)
+  ;;             ;(mock/body (json/generate-string tipo-alimento-teste))
+  ;;             (mock/content-type "application/json")
+  ;;             (mock/header "Accept" "application/json")))
+  ;;         body (json/parse-string (:body response) #(keyword %))
+  ;;     ))
   
   (testing "invalid route"
     (let [response (app (mock/request :get "/api/refeicoes/invalid"))]

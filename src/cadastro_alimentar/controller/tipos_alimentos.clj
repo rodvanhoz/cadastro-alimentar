@@ -1,8 +1,6 @@
 (ns cadastro-alimentar.controller.tipos-alimentos
   (:require [clojure.tools.logging :as log]
-            [ring.util.http-response :refer [ok bad-request unauthorized internal-server-error no-content created not-found conflict]]
             [cadastro-alimentar.db.tipos-alimentos :as db.tipos-alimentos]
-            [cadastro-alimentar.db :as db]
             [cadastro-alimentar.logic.tipos-alimentos :as logic.tipos-alimentos]))
 
 (defn get-all
