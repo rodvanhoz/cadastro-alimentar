@@ -39,3 +39,8 @@
   [descricao]
   (delete e/tipos-alimentos
     (where {:descricao descricao})))
+
+(defn delete-by-uuid
+  [uuid]
+  (delete e/tipos-alimentos
+    (where {:uuid (utils.uuids/uuid-from-string uuid)})))

@@ -51,7 +51,8 @@
     (if (= (count tp) 1)
       (do 
         (db.tipos-alimentos/update! field-clauses where-clauses)
-        (log/info "tipo-alimento atualizado com sucesso: " (first tp)))
+        (log/info "tipo-alimento atualizado com sucesso: " (first tp))
+        (by-uuid tipo-alimento-uuid))
       (throw (Exception. (str "UPDATE - tipo-alimento nao encontrado: " (:descricao tipo-alimento-fields)))))))
 
 (defn delete-by-descricao
@@ -61,4 +62,13 @@
     (do
       (db.tipos-alimentos/delete-by-descricao descricao)
       (log/info "DELETE - tipo-alimento deletado: " descricao)
+      true)))
+
+(defn delete-by-uuid
+  [uuid]
+  (if (= (count (by-uuid uuid)) 0)
+    (throw (Exception. (str "tipo-alimento nao encontrado: " uuid)))
+    (do
+      (db.tipos-alimentos/delete-by-uuid uuid)
+      (log/info "DELETE - tipo-alimento deletado: " uuid)
       true)))

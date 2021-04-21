@@ -107,9 +107,48 @@
                             (mock/json-body tipo-alimento-teste)
                             ;(mock/body (json/generate-string tipo-alimento-teste))
                             (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))
+          body (json/parse-string (:body response) #(keyword %))]
+      (is (= (:status response) 200))
+      (is (= (str  (:uuid (first body))) "a3770a85-eb2a-4994-8502-fa8ebaea9fa3"))
+      (is (= (:descricao (first body)) "Alimento Teste"))))
+
+  (testing "Not insert a tipo-alimento when it exists"
+    (let [response (app (-> (mock/request :post "/api/tipos_alimentos")
+                            (mock/json-body tipo-alimento-teste)
+                            ;(mock/body (json/generate-string tipo-alimento-teste))
+                            (mock/content-type "application/json")
                             (mock/header "Accept" "application/json")))]
-      (is (= (:status response) 201))))
+      (is (= (:status response) 409))))
+
+  (testing "update a tipo-alimento"
+    (let [response (app (-> (mock/request :put "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                            (mock/json-body {:descricao "Tipo Alimento Update"})
+                            ;(mock/body (json/generate-string tipo-alimento-teste))
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))]
+      (is (= (:status response) 200))))
   
+  (testing "delete a tipo-alimento by uuid"
+    (let [response (app (-> (mock/request :delete "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))]
+      (is (= (:status response) 200))))
+
+  (testing "not update a tipo-alimento when it not exissts"
+    (let [response (app (-> (mock/request :put "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                            (mock/json-body {:descricao "Tipo Alimento Update"})
+                            ;(mock/body (json/generate-string tipo-alimento-teste))
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))]
+      (is (= (:status response) 204))))
+
+  (testing "not delete a tipo-alimento by uuid when it nos exists"
+    (let [response (app (-> (mock/request :delete "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))]
+      (is (= (:status response) 404))))
+      
   (testing "invalid route"
     (let [response (app (mock/request :get "/api/tipos_alimentos/invalid"))]
       (is (= (:status response) 400)))))

@@ -7,7 +7,7 @@
             [cadastro-alimentar.controller.alimentos :as controller.alimentos]
             [cadastro-alimentar.controller.refeicoes :as controller.refeicoes]
             [cadastro-alimentar.controller.tipos-alimentos :as controller.tipos-alimentos]
-            [ring.util.http-response :refer [ok bad-request unauthorized not-found created]]))
+            [ring.util.http-response :refer [ok bad-request unauthorized not-found created no-content conflict]]))
 
 (defn home
   [_]
@@ -65,10 +65,29 @@
 
 (defn tipos-alimentos-insert
   [body]
-  (let [result (controller.tipos-alimentos/create-tipo-alimento body)]
-    (if (= (count result) 1)
-      (created)
-      (bad-request))))
+  (try 
+    (let [result (controller.tipos-alimentos/create-tipo-alimento body)]
+      (if (= (count result) 1)
+        result
+        (bad-request)))
+    (catch Exception e (conflict))))
+
+(defn tipos-alimentos-update
+  [uuid body]
+  (try
+    (let [result (controller.tipos-alimentos/update-tipo-alimento uuid body)]
+      (if (= (count result) 1)
+        (ok)
+        (no-content)))
+    (catch Exception e (no-content))))
+
+(defn tipos-alimentos-delete-by-uuid
+  [uuid]
+  (try 
+    (if (controller.tipos-alimentos/delete-by-uuid uuid)
+      (ok)
+      (not-found))
+    (catch Exception e (not-found))))
 
 (defroutes app-routes
   (GET "/" [] home)
@@ -85,7 +104,9 @@
     (context "/tipos_alimentos" []
       (GET "/" [] (tipos-alimentos-get-all))
       (GET "/:uuid" [uuid] (tipos-alimentos-get-by-uuid uuid))
-      (POST "/" {:keys [body]} (tipos-alimentos-insert body))))
+      (POST "/" {:keys [body]} (tipos-alimentos-insert body))
+      (PUT "/:uuid" {{:keys [uuid]} :params body :body} (tipos-alimentos-update uuid body))
+      (DELETE "/:uuid" [uuid] (tipos-alimentos-delete-by-uuid uuid))))
   (route/not-found "Not Found"))
 
 (defn log-request

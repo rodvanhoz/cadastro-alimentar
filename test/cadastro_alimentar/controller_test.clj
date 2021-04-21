@@ -24,9 +24,12 @@
 
 (deftest testing-tipo-alimento
   (testing "should create a tipo-alimento"
-    (let [tipo-alimento (controller.tipos-alimentos/create-tipo-alimento tipo-alimento-teste)
+    (let [tipo-alimento (first (controller.tipos-alimentos/create-tipo-alimento tipo-alimento-teste))
           tipo-alimento-saved (controller.tipos-alimentos/by-descricao "Alimento Teste")]
-      (is (= (str (:descricao tipo-alimento-saved) "Alimento Teste")))))
+      (is (= (str (:descricao tipo-alimento-saved) "Alimento Teste")))
+      (is (= (str (:descricao tipo-alimento) "Alimento Teste")))
+      (is (= (str (:uuid tipo-alimento-saved) "6c7ef568-be99-4093-a3a6-ecfcfe13fd3a")))
+      (is (= (str (:uuid tipo-alimento)) "6c7ef568-be99-4093-a3a6-ecfcfe13fd3a"))))
 
   (testing "should not create a tipo-alimento when it exists"
       (is (thrown-with-msg? Exception #"tipo-alimento ja existe: Alimento Teste" (:processed (controller.tipos-alimentos/create-tipo-alimento tipo-alimento-teste)))))
@@ -45,11 +48,18 @@
       (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: tipo alimento teste update" (:processed (controller.tipos-alimentos/update-tipo-alimento "3158db7c-9f7f-4857-aa0c-3afc2ee35520" 
                                                                                                                                                     {:descricao "tipo alimento teste update"})))))
       
-  (testing "should not delete a tipo-alimento by uuid"
+  (testing "should not delete a tipo-alimento by descricao"
     (is (= (controller.tipos-alimentos/delete-by-descricao "tipo alimento teste update"))))
 
+  (testing "should not delete a tipo-alimento by descricao when it not exists"
+    (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: tipo alimento teste update" (:processed (controller.tipos-alimentos/delete-by-descricao "tipo alimento teste update")))))
+    
+  (testing "should delete tipo-alimento by uuid"
+    (let [tipo-alimento-created (controller.tipos-alimentos/create-tipo-alimento tipo-alimento-teste)]
+      (is (controller.tipos-alimentos/delete-by-uuid "6c7ef568-be99-4093-a3a6-ecfcfe13fd3a"))))
+      
   (testing "should not delete a tipo-alimento by uuid when it not exists"
-    (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: tipo alimento teste update" (:processed (controller.tipos-alimentos/delete-by-descricao "tipo alimento teste update"))))))
+    (is (thrown-with-msg? Exception #"tipo-alimento nao encontrado: 6c7ef568-be99-4093-a3a6-ecfcfe13fd3a" (:processed (controller.tipos-alimentos/delete-by-descricao "6c7ef568-be99-4093-a3a6-ecfcfe13fd3a"))))))
 
 (deftest testing-refeicoes
   (testing "should create a refeicao"
