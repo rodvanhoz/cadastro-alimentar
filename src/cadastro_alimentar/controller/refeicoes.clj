@@ -3,6 +3,8 @@
             [ring.util.http-response :refer [conflict]]
             [cadastro-alimentar.db.refeicoes :as db.refeicoes]
             [cadastro-alimentar.logic.refeicoes :as logic.refeicoes]
+            [cadastro-alimentar.controller.pesos-alimentos :as controller.pesos-alimentos]
+            [cadastro-alimentar.logic.pesos-alimentos :as logic.pesos-alimentos]
             [cadastro-alimentar.db :as db]
             [cadastro-alimentar.utils.dates :as utils.dates]))
 
@@ -102,3 +104,19 @@
         (assoc :refeicoes refeicoes)
         (assoc :calculated-macros calculated-macros)
         list)))
+
+(defn insert-complete-refeicao
+  [complete-refeicao]
+  (if (logic.refeicoes/valid? complete-refeicao)
+    (do
+      (let [refeicao-builder (logic.refeicoes/build-refeicao (:refeicao complete-refeicao))
+            pesos-alimentos-builder (logic.pesos-alimentos/build-pesos-alimentos (:alimentos complete-refeicao) (:uuid refeicao-builder))
+            refeicao-inserted (create-refeicao refeicao-builder)
+            pesos-alimentos-inserted (controller.pesos-alimentos/create-pesos-alimentos-by-list pesos-alimentos-builder)]
+        (if (and (= (count refeicao-inserted) 1) (= (count pesos-alimentos-builder) (count pesos-alimentos-inserted)))
+          (do
+            (let [complete-refeicao-builder (logic.refeicoes/complete-refeicoes-build refeicao-inserted pesos-alimentos-inserted)]
+              (log/info "Refeicao completa inserida: " (str (:uuid (first refeicao-builder))))
+              complete-refeicao-builder))
+          (throw (Exception. (str "INSERT - Erro ao inserir uma refeicao completa: " complete-refeicao))))))
+    (throw (Exception. (str "INSERT - refeicao completa nao e valida: " complete-refeicao)))))

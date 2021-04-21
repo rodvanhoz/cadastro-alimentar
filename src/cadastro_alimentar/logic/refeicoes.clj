@@ -21,3 +21,18 @@
   (-> {}
       (cond-> (not (nil? (:moment refeicao))) (assoc :moment (str->date (:moment refeicao))))
       (cond-> (not (nil? (:descricao refeicao))) (assoc :descricao (:descricao refeicao)))))
+
+(defn complete-refeicoes-build
+  [refeicao-inserted pesos-alimentos-inserted]
+  (let [alimentos (doall
+                    (map #(-> {}
+                              (assoc :peso (:peso %))
+                              (assoc :uuid (:alimento_uuid %)))
+                      pesos-alimentos-inserted))]
+    (-> {}
+        (assoc :alimentos alimentos)
+        (assoc :refeicao (first refeicao-inserted)))))
+
+(defn valid?
+  [complete-refeicao]
+  (and (list? (:alimentos complete-refeicao)) (not (nil? (:refeicao complete-refeicao)))))

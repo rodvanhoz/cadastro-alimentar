@@ -42,7 +42,7 @@
     (if (= (count alim) 1)
       (do 
         (db.alimentos/update! field-clauses where-clauses)
-        (log/info "alimento atualizado com sucesso: " (first alim))
+        (log/info "alimento atualizado com sucesso: " (by-uuid alimento-uuid))
         (by-uuid alimento-uuid))
       (do
         (throw (Exception. (str "UPDATE - alimento nao encontrado: " alimento-uuid)))))))
