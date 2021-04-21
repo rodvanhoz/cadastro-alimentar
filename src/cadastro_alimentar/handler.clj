@@ -28,6 +28,32 @@
       (not-found)
       result)))
 
+(defn alimentos-insert
+  [body]
+  (try 
+    (let [result (controller.alimentos/create-alimento body)]
+      (if (= (count result) 1)
+        result
+        (bad-request)))
+    (catch Exception e (conflict))))
+
+(defn alimentos-update
+  [uuid body]
+  (try
+    (let [result (controller.alimentos/update-alimento uuid body)]
+      (if (= (count result) 1)
+        result
+        (no-content)))
+    (catch Exception e (no-content))))
+
+(defn alimentos-delete-by-uuid
+  [uuid]
+  (try 
+    (if (controller.alimentos/delete-by-uuid uuid)
+      (ok)
+      (not-found))
+    (catch Exception e (not-found))))
+
 (defn refeicoes-get-all
   []
   (let [result (controller.refeicoes/get-all)]
@@ -77,7 +103,7 @@
   (try
     (let [result (controller.tipos-alimentos/update-tipo-alimento uuid body)]
       (if (= (count result) 1)
-        (ok)
+        result
         (no-content)))
     (catch Exception e (no-content))))
 
@@ -94,7 +120,10 @@
   (context "/api" []
     (context "/alimentos" []
       (GET "/" [] (alimentos-get-all))
-      (GET "/:uuid" [uuid] (alimentos-get-by-uuid uuid)))
+      (GET "/:uuid" [uuid] (alimentos-get-by-uuid uuid))
+      (POST "/" {:keys [body]} (alimentos-insert body))
+      (PUT "/:uuid" {{:keys [uuid]} :params body :body} (alimentos-update uuid body))
+      (DELETE "/:uuid" [uuid] (alimentos-delete-by-uuid uuid)))
     
     (context "/refeicoes" []
       (GET "/" [] (refeicoes-get-all))
