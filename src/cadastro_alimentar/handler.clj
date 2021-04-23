@@ -35,7 +35,9 @@
       (if (= (count result) 1)
         result
         (bad-request)))
-    (catch Exception e (conflict))))
+    (catch Exception e (do
+                          (log/error e)
+                          (conflict)))))
 
 (defn alimentos-update
   [uuid body]
@@ -44,7 +46,9 @@
       (if (= (count result) 1)
         result
         (no-content)))
-    (catch Exception e (no-content))))
+    (catch Exception e (do
+                          (log/error e)
+                          (no-content)))))
 
 (defn alimentos-delete-by-uuid
   [uuid]
@@ -52,7 +56,9 @@
     (if (controller.alimentos/delete-by-uuid uuid)
       (ok)
       (not-found))
-    (catch Exception e (not-found))))
+    (catch Exception e (do
+                          (log/error e)
+                          (not-found)))))
 
 (defn refeicoes-get-all
   []
@@ -96,7 +102,9 @@
       (if (= (count result) 1)
         result
         (bad-request)))
-    (catch Exception e (conflict))))
+    (catch Exception e (do
+                          (log/error e)
+                          (conflict)))))
 
 (defn tipos-alimentos-update
   [uuid body]
@@ -105,7 +113,9 @@
       (if (= (count result) 1)
         result
         (no-content)))
-    (catch Exception e (no-content))))
+    (catch Exception e (do
+                          (log/error e)
+                          (no-content)))))
 
 (defn tipos-alimentos-delete-by-uuid
   [uuid]
@@ -113,7 +123,9 @@
     (if (controller.tipos-alimentos/delete-by-uuid uuid)
       (ok)
       (not-found))
-    (catch Exception e (not-found))))
+    (catch Exception e (do
+                          (log/error e)
+                          (not-found)))))
 
 (defroutes app-routes
   (GET "/" [] home)
@@ -141,7 +153,7 @@
 (defn log-request
   [handler]
   (fn [request]
-    (log/info "[REQUEST] " (get-in request []))
+    (log/info "[REQUEST] <<" (get-in request []) ">>")
     (handler request)))
   
 (defn wrap-exception
@@ -159,5 +171,4 @@
   (-> app-routes
       (wrap-exception)
       (wrap-json-response)
-      (wrap-json-body {:keywords? true})
-      (log-request)))
+      (wrap-json-body {:keywords? true})))
