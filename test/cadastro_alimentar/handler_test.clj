@@ -2,10 +2,17 @@
   (:require [clojure.test :refer :all]
             [ring.mock.request :as mock]
             [cheshire.core :as json]
-            [cadastro-alimentar.handler :refer :all]))
+            [cadastro-alimentar.handler :refer :all]
+            [cadastro-alimentar.utils.dates :as utils.dates]))
 
 (def tipo-alimento-teste {:uuid "a3770a85-eb2a-4994-8502-fa8ebaea9fa3" :descricao "Alimento Teste"})
 (def alimento-teste {:uuid "ada049ae-e92c-4795-b359-c84345ffa1bb" :nome "Alimento Teste Cozido" :peso 1.0 :qtde-carboidrato 0.281 :qtde-gorduras 0.002	:qtde-proteinas 0.025	:tipo-alimento-uuid "f1fd8177-d95c-47e7-ae69-6ad6ec8f48c2"})
+
+(def complete-refeicao-teste {:alimentos (list {:uuid "1864c9a4-2dac-48d6-9a9f-12cc91b1cb50" :peso 150.0}
+                                               {:uuid "057df894-5727-4789-898b-b4bcfe07e5d5" :peso 150.0}
+                                               {:uuid "54b9ba0d-4429-4ffa-9298-e242ec3c79d4" :peso 170.0}
+                                               {:uuid "e3265510-87da-4a88-a610-ea18620e7802" :peso 100.0})
+                                               :refeicao {:uuid "d6e3ccca-cb0f-4fa4-a0ea-92576407f998" :moment "2021-04-10T15:34:40Z" :descricao "Refeicao Teste Handler"}})
 
 (deftest handler-test
   (testing "testing main route (invlid)")
@@ -132,19 +139,43 @@
   (testing "not-found status when inform not exist uuid"
     (let [response (app (mock/request :get "/api/refeicoes/38200d40-c29c-488f-acb9-6ef183989672"))]
       (is (= (:status response) 404))))
-
-  ;; (testing "insert a new complete refeicao"
-  ;;   (let [response (app (-> (mock/request :post "/api/refeicoes")
-  ;;             (mock/json-body tipo-alimento-teste)
-  ;;             ;(mock/body (json/generate-string tipo-alimento-teste))
-  ;;             (mock/content-type "application/json")
-  ;;             (mock/header "Accept" "application/json")))
-  ;;         body (json/parse-string (:body response) #(keyword %))
-  ;;     ))
-  
+      
   (testing "invalid route"
     (let [response (app (mock/request :get "/api/refeicoes/invalid"))]
       (is (= (:status response) 400)))))
+
+(deftest complete-refeicao
+  (testing "insert a new complete refeicao"
+    (let [response (app (-> (mock/request :post "/api/refeicoes/completas")
+              (mock/json-body complete-refeicao-teste)
+              ;(mock/body (json/generate-string tipo-alimento-teste))
+              (mock/content-type "application/json")
+              (mock/header "Accept" "application/json")))
+          body (json/parse-string (:body response) #(keyword %))]
+      (is (= (count body) 2))
+  
+      (let [alimentos (apply list (:alimentos body))
+            refeicao (:refeicao body)]
+        (is (= (count alimentos) 4))
+        (is (= (str (:uuid refeicao)) "d6e3ccca-cb0f-4fa4-a0ea-92576407f998"))
+        (is (= (str (utils.dates/str->date (:moment refeicao))) "2021-04-10 12:34:40.0"))
+        (is (= (str (:descricao refeicao)) "Refeicao Teste Handler")))))        
+  
+    (testing "testind get all complete refeicoes information"
+      (let [response (app (mock/request :get "/api/refeicoes/completas/2021-04-10"))
+            body (json/parse-string (:body response) #(keyword %))
+            refeicoes (:refeicoes (first body))
+            calculated-macros (:calculated-macros (first body))]
+        (is (= (:status response) 200))
+        (is (= (count refeicoes) 4))
+        (is (= (:kcal calculated-macros) 0.033737760000000006))
+        (is (= (:peso calculated-macros) 570.0))))
+
+    (testing "delete a complete refeicao by refeicao-uuid"
+      (let [response (app (-> (mock/request :delete "/api/refeicoes/completas/d6e3ccca-cb0f-4fa4-a0ea-92576407f998")
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))]
+      (is (= (:status response) 200)))))
 
 (deftest tipos-alimento-test
   (testing "testing get all"

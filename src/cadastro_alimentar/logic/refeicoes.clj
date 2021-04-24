@@ -1,6 +1,7 @@
 (ns cadastro-alimentar.logic.refeicoes
   (:require [cadastro-alimentar.utils.uuids :refer [uuid uuid-from-string]]
-            [cadastro-alimentar.utils.dates :refer [now str->date]]))
+            [cadastro-alimentar.utils.dates :refer [now str->date]]
+            [clojure.tools.logging :as log]))
 
 (defn build-refeicao
   [refeicao]
@@ -30,9 +31,10 @@
                               (assoc :uuid (:alimento_uuid %)))
                       pesos-alimentos-inserted))]
     (-> {}
-        (assoc :alimentos alimentos)
+        (assoc :alimentos (apply list alimentos))
         (assoc :refeicao (first refeicao-inserted)))))
 
 (defn valid?
   [complete-refeicao]
-  (and (list? (:alimentos complete-refeicao)) (not (nil? (:refeicao complete-refeicao)))))
+  (log/info "[complete-refeicao/valid?]: list? <<" (list? (apply list (:alimentos complete-refeicao))) ">> and not-nil? <<" (not (nil? (:refeicao complete-refeicao))) ">>")
+  (and (list? (apply list (:alimentos complete-refeicao))) (not (nil? (:refeicao complete-refeicao)))))
