@@ -54,8 +54,7 @@
   [uuid]
   (try 
     (if (controller.alimentos/delete-by-uuid uuid)
-      (ok)
-      (not-found))
+      (ok))
     (catch Exception e (do
                           (log/error e)
                           (not-found)))))
@@ -80,6 +79,28 @@
     (if (= (count result) 0)
       (not-found)
       result)))
+
+(defn refeicao-completa-insert
+  [body]
+  (try 
+    (let [result (controller.refeicoes/insert-complete-refeicao body)]
+      (if (= (count result) 2)
+        (-> {}
+            (assoc :status 200)
+            (assoc :body result))
+        (bad-request)))
+    (catch Exception e (do
+                          (log/error e)
+                          (conflict)))))
+
+(defn refeicao-delete-by-refeicao-uuid
+  [refeicao-uuid]
+  (try 
+    (if (controller.refeicoes/delete-by-uuid refeicao-uuid)
+      (ok))
+    (catch Exception e (do
+                          (log/error e)
+                          (not-found)))))
 
 (defn tipos-alimentos-get-all
   []
@@ -140,7 +161,9 @@
     (context "/refeicoes" []
       (GET "/" [] (refeicoes-get-all))
       (GET "/:uuid" [uuid] (refeicoes-get-by-uuid uuid))
-      (GET "/completas/:date" [date] (refeicoes-get-all-refeicoes-by-date-with-calculated-macros date)))
+      (GET "/completas/:date" [date] (refeicoes-get-all-refeicoes-by-date-with-calculated-macros date))
+      (POST "/completas" {:keys [body]} (refeicao-completa-insert body))
+      (DELETE "/completas/:uuid" [uuid] (refeicao-delete-by-refeicao-uuid uuid)))
     
     (context "/tipos_alimentos" []
       (GET "/" [] (tipos-alimentos-get-all))
@@ -162,13 +185,13 @@
     (try (handler request)
           (catch Exception e
             (do
-              (log/error (.getMessage e))
+              ;(log/error (.getMessage e))
               {:status 400
                :body (.getMessage e)})))))
             
 
 (def app
   (-> app-routes
-      (wrap-exception)
+      ;(wrap-exception)
       (wrap-json-response)
       (wrap-json-body {:keywords? true})))

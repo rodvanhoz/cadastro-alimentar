@@ -73,6 +73,9 @@
   (if (= (count (by-uuid refeicao-uuid)) 0)
     (throw (Exception. (str "refeicao nao encontrado: " refeicao-uuid)))
     (do
+      (let [pesos-alimentos (controller.pesos-alimentos/by-refeicao refeicao-uuid)]
+        (if (> (count pesos-alimentos) 0)
+          (controller.pesos-alimentos/delete-by-refeicao refeicao-uuid)))
       (db.refeicoes/delete-by-uuid refeicao-uuid)
       (log/info "DELETE - refeicao deletado: " refeicao-uuid)
       true)))
@@ -109,6 +112,7 @@
   [complete-refeicao]
   (if (logic.refeicoes/valid? complete-refeicao)
     (do
+      (log/info "-- refeicao-completa aceita --")
       (let [refeicao-builder (logic.refeicoes/build-refeicao (:refeicao complete-refeicao))
             pesos-alimentos-builder (logic.pesos-alimentos/build-pesos-alimentos (:alimentos complete-refeicao) (:uuid refeicao-builder))
             refeicao-inserted (create-refeicao refeicao-builder)

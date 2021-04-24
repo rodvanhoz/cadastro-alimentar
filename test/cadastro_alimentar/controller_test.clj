@@ -110,9 +110,10 @@
             refeicoes (:refeicoes (first result))]
         (is (= (count refeicoes) 4))
         (is (= (str (:kcal calculated-macros)) "0.033737760000000006"))
-        (is (= (str (:peso calculated-macros)) "570.0")))
-          
-      )))
+        (is (= (str (:peso calculated-macros)) "570.0")))))
+
+  (testing "shoul delete a refeicao and yours pesos-alimentos by refeicao-uuid"
+    (is (= (controller.refeicoes/delete-by-uuid "d6e3ccca-cb0f-4fa4-a0ea-92576407f998")))))
 
 (deftest testing-alimentos
   (testing "should create a alimento"

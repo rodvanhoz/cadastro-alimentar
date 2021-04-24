@@ -19,6 +19,15 @@
     (if (> (count result) 0)
       result
       (throw (Exception. (str "INSERT - Erro ao criar peso-alimento: " result))))))
+
+(defn delete-by-refeicao
+  [refeicao-uuid]
+  (if (= (count (by-refeicao refeicao-uuid)) 0)
+    (throw (Exception. (str "refeicao nao encontrada em pesos-alimentos: " refeicao-uuid)))
+    (do
+      (db.pesos-alimentos/delete-by-refeicao refeicao-uuid)
+      (log/info "DELETE - alimento deletado: " refeicao-uuid)
+      true)))
       
 (defn create-pesos-alimentos-by-list
   [pesos-alimentos]
