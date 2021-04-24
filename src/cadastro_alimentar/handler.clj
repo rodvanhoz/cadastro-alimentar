@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [clojure.tools.logging :as log]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
+            [ring.middleware.cors :refer [wrap-cors]]
             [cadastro-alimentar.utils.adapters :as utils.adapters]
             [cadastro-alimentar.controller.alimentos :as controller.alimentos]
             [cadastro-alimentar.controller.refeicoes :as controller.refeicoes]
@@ -193,5 +194,6 @@
 (def app
   (-> app-routes
       ;(wrap-exception)
+      (wrap-cors :access-control-allow-origin #"http://localhost:4200" :access-control-allow-methods [:get :put :post :delete])
       (wrap-json-response)
       (wrap-json-body {:keywords? true})))
