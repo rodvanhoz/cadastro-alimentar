@@ -6,7 +6,12 @@
             [cadastro-alimentar.utils.dates :as utils.dates]
             [cadastro-alimentar.mocks.alimentos :as mock.alimentos]
             [cadastro-alimentar.db.alimentos :as db.alimentos]
-))
+            [cadastro-alimentar.db.refeicoes :as db.refeicoes]
+            [cadastro-alimentar.mocks.refeicoes :as mock.refeicoes]
+            [cadastro-alimentar.db.tipos-alimentos :as db.tipos-alimentos]
+            [cadastro-alimentar.mocks.tipos-alimentos :as mock.tipos-alimentos]
+            [cadastro-alimentar.db.pesos-alimentos :as db.pesos-alimentos]
+            [cadastro-alimentar.mocks.pesos-alimentos :as mock.pesos-alimentos]))
 
 (def tipo-alimento-teste {:uuid "a3770a85-eb2a-4994-8502-fa8ebaea9fa3" :descricao "Alimento Teste"})
 (def alimento-teste {:uuid "ada049ae-e92c-4795-b359-c84345ffa1bb" :nome "Alimento Teste Cozido" :peso 1.0 :qtde-carboidrato 0.281 :qtde-gorduras 0.002	:qtde-proteinas 0.025	:tipo-alimento-uuid "f1fd8177-d95c-47e7-ae69-6ad6ec8f48c2"})
@@ -125,7 +130,7 @@
             
 (deftest refeicoes-test
   (testing "testing get all"
-    (with-redefs [db.refeicoes/mock-db-refeicoes-get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))]
+    (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))]
       (let [response (app (mock/request :get "/api/refeicoes"))
             body (json/parse-string (:body response) #(keyword %))
             refeicao (first body)]
@@ -134,7 +139,7 @@
         (is (not (empty? (:moment refeicao)))))))
     
   (testing "testing geting refeicao with uuid infomed"
-    (with-redefs [db.refeicoes/mock-db-refeicoes-get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))]
+    (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))]
       (let [response (app (mock/request :get "/api/refeicoes/c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"))
             body (json/parse-string (:body response) #(keyword %))
             refeicao (first body)]
@@ -144,14 +149,15 @@
         (is (= (:moment refeicao) "2020-07-24T15:53:07Z")))))
 
   (testing "testind get all complete refeicoes information"
-    (with-redefs [db.refeicoes/mock-db-refeicoes-get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))
+    (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))
                   db.refeicoes/insert! (fn [refeicao-builder] (mock.refeicoes/mock-db-refeicoes-get-for-insert refeicao-builder))
                   db.pesos-alimentos/delete-by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-delete-by-refeicao refeicao-uuid))
-                  ]
+                  db.refeicoes/get-all-refeicoes-by-date (fn [date] (mock.refeicoes/mock-db-refeicoes-get-all-refecoes-by-date date))]
       (let [response (app (mock/request :get "/api/refeicoes/completas/2020-07-24"))
             body (json/parse-string (:body response) #(keyword %))
             refeicoes (:refeicoes (first body))
             calculated-macros (:calculated-macros (first body))]
+          (prn "!!!!!!!!!!!!!!!!!!!" refeicoes)
         (is (= (:status response) 200))
         (is (= (count refeicoes) 5))
         (is (= (:kcal calculated-macros) 2.9097633600000004))
@@ -159,11 +165,7 @@
 
   (testing "not-found status when inform not exist uuid"
     (let [response (app (mock/request :get "/api/refeicoes/38200d40-c29c-488f-acb9-6ef183989672"))]
-      (is (= (:status response) 404))))
-      
-  (testing "invalid route"
-    (let [response (app (mock/request :get "/api/refeicoes/invalid"))]
-      (is (= (:status response) 400)))))
+      (is (= (:status response) 404)))))
 
 (deftest complete-refeicao
   (testing "insert a new complete refeicao"
@@ -218,7 +220,7 @@
         (is (= (:uuid tipo-alimento) "a3770a85-eb2a-4994-8502-fa8ebaea9fa3"))
         (is (= (:descricao tipo-alimento) "Alimento Teste")))))
 
-  (testing "not-found status when inform not exist uuid"
+  (testing "not-found status when inform an not exist uuid"
     (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-get-not-exist clauses))]
       (let [response (app (mock/request :get "/api/tipos_alimentos/13dde849-a5a5-473e-b74e-5543a7de83a1"))]
         (is (= (:status response) 404)))))
@@ -266,15 +268,6 @@
                               (mock/header "Accept" "application/json")))]
         (is (= (:status response) 200)))))
 
-  (testing "not update a tipo-alimento when it not exissts"
-    (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-get-not-exist clauses))
-                  db.tipos-alimentos/update! (fn [fields clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-update! fields clauses))]
-      (let [response (app (-> (mock/request :put "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
-                              (mock/json-body {:descricao "Tipo Alimento Update"})
-                            ;(mock/body (json/generate-string tipo-alimento-teste))
-                              (mock/content-type "application/json")
-                              (mock/header "Accept" "application/json")))]
-        (is (= (:status response) 204)))))
 
   (testing "not delete a tipo-alimento by uuid when it not exists"
     (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-get-not-exist clauses))
@@ -282,8 +275,5 @@
       (let [response (app (-> (mock/request :delete "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
                               (mock/content-type "application/json")
                               (mock/header "Accept" "application/json")))]
-        (is (= (:status response) 404)))))
-      
-  (testing "invalid route"
-    (let [response (app (mock/request :get "/api/blaaaa"))]
-      (is (= (:status response) 404)))))
+        (is (= (:status response) 404))))))
+ 
