@@ -6,10 +6,7 @@
             [cadastro-alimentar.utils.dates :as utils.dates]
             [cadastro-alimentar.mocks.alimentos :as mock.alimentos]
             [cadastro-alimentar.db.alimentos :as db.alimentos]
-            [cadastro-alimentar.db.refeicoes :as db.refeicoes]
-            [cadastro-alimentar.mocks.refeicoes :as mock.refeicoes]
-            [cadastro-alimentar.db.tipos-alimentos :as db.tipos-alimentos]
-            [cadastro-alimentar.mocks.tipos-alimentos :as mock.tipos-alimentos]))
+))
 
 (def tipo-alimento-teste {:uuid "a3770a85-eb2a-4994-8502-fa8ebaea9fa3" :descricao "Alimento Teste"})
 (def alimento-teste {:uuid "ada049ae-e92c-4795-b359-c84345ffa1bb" :nome "Alimento Teste Cozido" :peso 1.0 :qtde-carboidrato 0.281 :qtde-gorduras 0.002	:qtde-proteinas 0.025	:tipo-alimento-uuid "f1fd8177-d95c-47e7-ae69-6ad6ec8f48c2"})
@@ -128,31 +125,37 @@
             
 (deftest refeicoes-test
   (testing "testing get all"
-    (let [response (app (mock/request :get "/api/refeicoes"))
-          body (json/parse-string (:body response) #(keyword %))
-          refeicao (first body)]
-      (is (= (:status response) 200))
-      (is (> (count body) 0))
-      (is (not (empty? (:moment refeicao))))))
+    (with-redefs [db.refeicoes/mock-db-refeicoes-get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))]
+      (let [response (app (mock/request :get "/api/refeicoes"))
+            body (json/parse-string (:body response) #(keyword %))
+            refeicao (first body)]
+        (is (= (:status response) 200))
+        (is (> (count body) 0))
+        (is (not (empty? (:moment refeicao)))))))
     
-  (testing "testing geting refeicao with uuid c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"
-    (let [response (app (mock/request :get "/api/refeicoes/c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"))
-          body (json/parse-string (:body response) #(keyword %))
-          refeicao (first body)]
-      (is (= (:status response) 200))
-      (is (= (count body) 1))
-      (is (= (str (:uuid refeicao)) "c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"))
-      (is (= (:moment refeicao) "2020-07-24T15:53:07Z"))))
+  (testing "testing geting refeicao with uuid infomed"
+    (with-redefs [db.refeicoes/mock-db-refeicoes-get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))]
+      (let [response (app (mock/request :get "/api/refeicoes/c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"))
+            body (json/parse-string (:body response) #(keyword %))
+            refeicao (first body)]
+        (is (= (:status response) 200))
+        (is (= (count body) 1))
+        (is (= (str (:uuid refeicao)) "c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"))
+        (is (= (:moment refeicao) "2020-07-24T15:53:07Z")))))
 
   (testing "testind get all complete refeicoes information"
-    (let [response (app (mock/request :get "/api/refeicoes/completas/2020-07-24"))
-          body (json/parse-string (:body response) #(keyword %))
-          refeicoes (:refeicoes (first body))
-          calculated-macros (:calculated-macros (first body))]
-      (is (= (:status response) 200))
-      (is (= (count refeicoes) 5))
-      (is (= (:kcal calculated-macros) 2.9097633600000004))
-      (is (= (:peso calculated-macros)  1000.0))))
+    (with-redefs [db.refeicoes/mock-db-refeicoes-get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))
+                  db.refeicoes/insert! (fn [refeicao-builder] (mock.refeicoes/mock-db-refeicoes-get-for-insert refeicao-builder))
+                  db.pesos-alimentos/delete-by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-delete-by-refeicao refeicao-uuid))
+                  ]
+      (let [response (app (mock/request :get "/api/refeicoes/completas/2020-07-24"))
+            body (json/parse-string (:body response) #(keyword %))
+            refeicoes (:refeicoes (first body))
+            calculated-macros (:calculated-macros (first body))]
+        (is (= (:status response) 200))
+        (is (= (count refeicoes) 5))
+        (is (= (:kcal calculated-macros) 2.9097633600000004))
+        (is (= (:peso calculated-macros)  1000.0)))))
 
   (testing "not-found status when inform not exist uuid"
     (let [response (app (mock/request :get "/api/refeicoes/38200d40-c29c-488f-acb9-6ef183989672"))]
