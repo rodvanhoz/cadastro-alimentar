@@ -6,6 +6,10 @@
   [clauses]
   (-> mock-database-pesos-alimentos-get (list)))
 
+(defn mock-db-pesos-alimentos-get-by-refeicao-uuid
+  [refeicao-uuid]
+  (-> mock-database-pesos-alimentos-get (list)))
+
 (defn mock-db-pesos-alimentos-get-not-exist
   [clauses]
   ())
