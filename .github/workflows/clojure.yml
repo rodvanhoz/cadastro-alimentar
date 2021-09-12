@@ -13,9 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Print java version
+      run: java -version
     - name: Install dependencies
       run: lein deps
-   - name: Print java version
-      run: java -version
     - name: Run tests
       run: lein test
