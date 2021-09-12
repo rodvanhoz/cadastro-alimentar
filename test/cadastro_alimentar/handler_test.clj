@@ -11,7 +11,8 @@
             [cadastro-alimentar.db.tipos-alimentos :as db.tipos-alimentos]
             [cadastro-alimentar.mocks.tipos-alimentos :as mock.tipos-alimentos]
             [cadastro-alimentar.db.pesos-alimentos :as db.pesos-alimentos]
-            [cadastro-alimentar.mocks.pesos-alimentos :as mock.pesos-alimentos]))
+            [cadastro-alimentar.mocks.pesos-alimentos :as mock.pesos-alimentos]
+            [cadastro-alimentar.controller.pesos-alimentos :as controller.pesos-alimentos]))
 
 (def tipo-alimento-teste {:uuid "a3770a85-eb2a-4994-8502-fa8ebaea9fa3" :descricao "Alimento Teste"})
 (def alimento-teste {:uuid "ada049ae-e92c-4795-b359-c84345ffa1bb" :nome "Alimento Teste Cozido" :peso 1.0 :qtde-carboidrato 0.281 :qtde-gorduras 0.002	:qtde-proteinas 0.025	:tipo-alimento-uuid "f1fd8177-d95c-47e7-ae69-6ad6ec8f48c2"})
@@ -148,19 +149,6 @@
         (is (= (str (:uuid refeicao)) "c8a2bfb9-2828-4c70-84ce-b2c3dd3db230"))
         (is (= (:moment refeicao) "2020-07-24T15:53:07Z")))))
 
-  (testing "testind get all complete refeicoes information"
-    (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))
-                  db.refeicoes/insert! (fn [refeicao-builder] (mock.refeicoes/mock-db-refeicoes-get-for-insert refeicao-builder))
-                  db.refeicoes/get-all-refeicoes-by-date (fn [date] (mock.refeicoes/mock-db-refeicoes-get-all-refecoes-by-date date))]
-      (let [response (app (mock/request :get "/api/refeicoes/completas/2020-07-24"))
-            body (json/parse-string (:body response) #(keyword %))
-            refeicoes (:refeicoes (first body))
-            calculated-macros (:calculated-macros (first body))]
-        (is (= (:status response) 200))
-        (is (= (count refeicoes) 5))
-        (is (= (:kcal calculated-macros) 2.9097633600000004))
-        (is (= (:peso calculated-macros)  1000.0)))))
-
   (testing "not-found status when inform not exist uuid"
     (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get-not-exist clauses))]
       (let [response (app (mock/request :get "/api/refeicoes/38200d40-c29c-488f-acb9-6ef183989672"))]
@@ -168,10 +156,11 @@
 
 (deftest complete-refeicao
   (testing "insert a new complete refeicao"
-    (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get clauses))
+    (with-redefs [db.refeicoes/get (fn [clauses] (mock.refeicoes/mock-db-refeicoes-get-not-exist clauses))
                   db.refeicoes/insert! (fn [refeicao-builder] (mock.refeicoes/mock-db-refeicoes-get-for-insert refeicao-builder))
                   db.pesos-alimentos/insert! (fn [peso-alimento] (mock.pesos-alimentos/mock-db-pesos-alimentos-insert! peso-alimento))
-                  db.pesos-alimentos/by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-get-by-refeicao-uuid refeicao-uuid))]
+                  db.pesos-alimentos/by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-get-by-refeicao-uuid-not-exist refeicao-uuid))
+                  controller.pesos-alimentos/create-pesos-alimentos-by-list (fn [pesos-alimentos] (mock.pesos-alimentos/mock-create-peso-alimentos-by-list pesos-alimentos))]
       (let [response (app (-> (mock/request :post "/api/refeicoes/completas")
                 (mock/json-body complete-refeicao-teste)
                 ;(mock/body (json/generate-string tipo-alimento-teste))
@@ -199,8 +188,8 @@
               calculated-macros (:calculated-macros (first body))]
           (is (= (:status response) 200))
           (is (= (count refeicoes) 4))
-          (is (= (:kcal calculated-macros) 0.033737760000000006))
-          (is (= (:peso calculated-macros) 570.0)))))
+          (is (= (:kcal calculated-macros) 1.4582433600000002))
+          (is (= (:peso calculated-macros) 950.0)))))
 
     (testing "delete a complete refeicao by refeicao-uuid"
       (with-redefs [db.pesos-alimentos/delete-by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-delete-by-refeicao refeicao-uuid))
