@@ -16,7 +16,7 @@
 
 (defn by-uuid
   [uuid]
-  (let [result  (db.alimentos/by-uuid uuid)]
+  (let [result (db.alimentos/by-uuid uuid)]
     (if (= (count result) 0)
       ()
       (do

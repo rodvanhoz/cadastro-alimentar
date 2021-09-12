@@ -35,3 +35,6 @@
 
 (defn mock-db-tipos-alimentos-delete-by-uuid
   [tipo-alimento-uuid])
+
+(defn mock-db-tipos-alimentos-delete-by-descricao
+  [descricao])
