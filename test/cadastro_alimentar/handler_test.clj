@@ -225,7 +225,7 @@
       (let [response (app (mock/request :get "/api/tipos_alimentos/13dde849-a5a5-473e-b74e-5543a7de83a1"))]
         (is (= (:status response) 404)))))
 
-  (testing "insert a tipo-alimento"
+  (testing "insert a new tipo-alimento"
     (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-alimentipos-alimentos-get-for-insert clauses))
                   db.tipos-alimentos/insert! (fn [tipo-alimento] (mock.tipos-alimentos/mock-db-tipos-alimentos-insert! tipo-alimento))]
       (let [response (app (-> (mock/request :post "/api/tipos_alimentos")
