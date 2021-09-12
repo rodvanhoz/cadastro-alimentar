@@ -10,7 +10,7 @@
 (defn get
   [clauses]
   (select e/alimentos
-    (fields :uuid :nome :peso [:qtde_carboidrato :qtde-carboidrato] [:qtde_gorduras :qtde-gordduras] [:qtde_proteinas :qtde-proteinas] [:tipo_alimento_uuid :tipo-alimento-uuid]
+    (fields :uuid :nome :peso [:qtde_carboidrato :qtde-carboidrato] [:qtde_gorduras :qtde-gorduras] [:qtde_proteinas :qtde-proteinas] [:tipo_alimento_uuid :tipo-alimento-uuid]
             [:tipos.descricao :tipo-alimento-descricao])
 
     (join :inner [e/tipos-alimentos :tipos] (= :alimentos.tipo_alimento_uuid :tipos.uuid))
