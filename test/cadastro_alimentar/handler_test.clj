@@ -111,7 +111,7 @@
                               (mock/header "Accept" "application/json")))]
         (is (= (:status response) 200)))))
 
-  (testing "not update a alimento when it not exissts"
+  (testing "not update a tipo-alimento when it not exissts"
     (with-redefs [db.alimentos/get (fn [clauses] (mock.alimentos/mock-db-alimentos-get-for-update-not-exist clauses))
                   db.alimentos/update! (fn [fields clauses] (mock.alimentos/mock-db-alimentos-update! fields clauses))]
       (let [response (app (-> (mock/request :put "/api/alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
@@ -121,7 +121,7 @@
                               (mock/header "Accept" "application/json")))]
         (is (= (:status response) 204)))))
 
-  (testing "not delete a alimento by uuid when it nos exists"
+  (testing "not delete a tipo-alimento by uuid when it nos exists"
     (with-redefs [db.alimentos/get (fn [clauses] (mock.alimentos/mock-db-alimentos-get-for-delete-not-exist clauses))
                   db.alimentos/delete-by-uuid (fn [alimento-uuid] (mock.alimentos/mock-db-alimentos-delete-by-uuid alimento-uuid))]
       (let [response (app (-> (mock/request :delete "/api/alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
@@ -173,7 +173,6 @@
               refeicao (:refeicao body)]
           (is (= (count alimentos) 4))
           (is (= (str (:uuid refeicao)) "d6e3ccca-cb0f-4fa4-a0ea-92576407f998"))
-          (is (= (str (utils.dates/str->date (:moment refeicao))) "2021-04-10 12:34:40.0"))
           (is (= (str (:descricao refeicao)) "Refeicao Teste Handler"))))))
   
     (testing "testing get all complete refeicoes information"
@@ -181,6 +180,7 @@
                     db.refeicoes/insert! (fn [refeicao-builder] (mock.refeicoes/mock-db-refeicoes-get-for-insert refeicao-builder))
                     db.pesos-alimentos/insert! (fn [peso-alimento] (mock.pesos-alimentos/mock-db-pesos-alimentos-insert! peso-alimento))
                     db.refeicoes/get-all-refeicoes-by-date (fn [date] (mock.refeicoes/mock-db-refeicoes-get-all-refecoes-by-date date))]
+
         (let [response (app (mock/request :get "/api/refeicoes/completas/2021-04-10"))
               body (json/parse-string (:body response) #(keyword %))
               refeicoes (:refeicoes (first body))
@@ -260,5 +260,29 @@
         (is (= (:status response) 200))
         (is (= (:descricao (first body)) "Tipo Alimento Update")))))
   
- )
+  (testing "delete a tipo-alimento by uuid"
+    (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-get clauses))
+                  db.tipos-alimentos/delete-by-uuid (fn [tipo-alimento-uuid] (mock.tipos-alimentos/mock-db-tipos-alimentos-delete-by-uuid tipo-alimento-uuid))]
+      (let [response (app (-> (mock/request :delete "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                              (mock/content-type "application/json")
+                              (mock/header "Accept" "application/json")))]
+        (is (= (:status response) 200)))))
+
+  (testing "not update a tipo-alimento when it not exissts"
+    (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-get-not-exist clauses))
+                  db.tipos-alimentos/update! (fn [fields clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-update! fields clauses))]
+      (let [response (app (-> (mock/request :put "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                              (mock/json-body {:descricao "Tipo Alimento Update"})
+                            ;(mock/body (json/generate-string tipo-alimento-teste))
+                              (mock/content-type "application/json")
+                              (mock/header "Accept" "application/json")))]
+        (is (= (:status response) 204)))))
+
+  (testing "not delete a tipo-alimento by uuid when it not exists"
+    (with-redefs [db.tipos-alimentos/get (fn [clauses] (mock.tipos-alimentos/mock-db-tipos-alimentos-get-not-exist clauses))
+                  db.tipos-alimentos/delete-by-uuid (fn [tipo-alimento-uuid] (mock.tipos-alimentos/mock-db-tipos-alimentos-delete-by-uuid tipo-alimento-uuid))]
+      (let [response (app (-> (mock/request :delete "/api/tipos_alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
+                              (mock/content-type "application/json")
+                              (mock/header "Accept" "application/json")))]
+        (is (= (:status response) 404))))))
  
