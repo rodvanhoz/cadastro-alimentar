@@ -1,6 +1,7 @@
 (ns cadastro-alimentar.controller-test
   (:require [clojure.test :refer :all]
             [cheshire.core :as json]
+            [clj-time.core :as t]
             [cadastro-alimentar.controller.refeicoes :as controller.refeicoes]
             [cadastro-alimentar.controller.alimentos :as controller.alimentos]
             [cadastro-alimentar.controller.tipos-alimentos :as controller.tipos-alimentos]
@@ -178,6 +179,7 @@
                   db.pesos-alimentos/insert! (fn [peso-alimento] (mock.pesos-alimentos/mock-db-pesos-alimentos-insert! peso-alimento))
                   db.pesos-alimentos/by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-get-by-refeicao-uuid-not-exist refeicao-uuid))
                   controller.pesos-alimentos/create-pesos-alimentos-by-list (fn [pesos-alimentos] (mock.pesos-alimentos/mock-create-peso-alimentos-by-list pesos-alimentos))]
+
       (let [result (controller.refeicoes/insert-complete-refeicao complete-refeicao-teste)]
         (is (= (count result) 2))
         
@@ -185,7 +187,6 @@
               refeicao (:refeicao result)]
           (is (= (count alimentos) 4))
           (is (= (str (:uuid refeicao)) "d6e3ccca-cb0f-4fa4-a0ea-92576407f998"))
-          (is (= (str (utils.dates/str->date (:moment refeicao))) "2021-04-10 12:34:40.0"))
           (is (= (str (:descricao refeicao)) "Refeicao Teste"))))))
   
   (testing "should get a complete refeicao"

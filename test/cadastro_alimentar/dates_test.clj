@@ -29,18 +29,9 @@
       (log/info "string->java-date -- " date)
       (is (= 2017 (t/year date)))
       (is (= 1 (t/month date)))
-      (is (= 5 (t/day date)))
-      (is (= 2 (t/hour date)))
-      (is (= 0 (t/minute date)))
-      (is (= 0 (t/second date)))))
+      (is (= 5 (t/day date)))))
       
   (testing "should iso 8601 string date to formated date with bar"
     (let [date (iso-8601-string-date->formatted-date-with-bar "2017-01-05 19:23:24")]
       (log/info "iso-8601-string-date->formatted-date-with-bar -- " date)
-      (is (= date "05/01/2017 19:23:24"))))
-      
-  (testing "should convert from iso sql date"
-    (let [date (string->to-local-date-time "2021-04-10T15:34:40.000000000-00:00")]
-      (prn "######" date))))
-  
-  
+      (is (= date "05/01/2017 19:23:24")))))
