@@ -111,7 +111,7 @@
                               (mock/header "Accept" "application/json")))]
         (is (= (:status response) 200)))))
 
-  (testing "not update a tipo-alimento when it not exissts"
+  (testing "not update a alimento when it not exissts"
     (with-redefs [db.alimentos/get (fn [clauses] (mock.alimentos/mock-db-alimentos-get-for-update-not-exist clauses))
                   db.alimentos/update! (fn [fields clauses] (mock.alimentos/mock-db-alimentos-update! fields clauses))]
       (let [response (app (-> (mock/request :put "/api/alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
@@ -121,7 +121,7 @@
                               (mock/header "Accept" "application/json")))]
         (is (= (:status response) 204)))))
 
-  (testing "not delete a tipo-alimento by uuid when it nos exists"
+  (testing "not delete a alimento by uuid when it nos exists"
     (with-redefs [db.alimentos/get (fn [clauses] (mock.alimentos/mock-db-alimentos-get-for-delete-not-exist clauses))
                   db.alimentos/delete-by-uuid (fn [alimento-uuid] (mock.alimentos/mock-db-alimentos-delete-by-uuid alimento-uuid))]
       (let [response (app (-> (mock/request :delete "/api/alimentos/a3770a85-eb2a-4994-8502-fa8ebaea9fa3")
@@ -285,4 +285,3 @@
                               (mock/content-type "application/json")
                               (mock/header "Accept" "application/json")))]
         (is (= (:status response) 404))))))
- 

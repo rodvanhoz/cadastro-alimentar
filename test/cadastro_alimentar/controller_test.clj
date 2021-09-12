@@ -178,8 +178,8 @@
                   db.refeicoes/insert! (fn [refeicao-builder] (mock.refeicoes/mock-db-refeicoes-get-for-insert refeicao-builder))
                   db.pesos-alimentos/insert! (fn [peso-alimento] (mock.pesos-alimentos/mock-db-pesos-alimentos-insert! peso-alimento))
                   db.pesos-alimentos/by-refeicao (fn [refeicao-uuid] (mock.pesos-alimentos/mock-db-pesos-alimentos-get-by-refeicao-uuid-not-exist refeicao-uuid))
-                  controller.pesos-alimentos/create-pesos-alimentos-by-list (fn [pesos-alimentos] (mock.pesos-alimentos/mock-create-peso-alimentos-by-list pesos-alimentos))
-                  utils.dates/now (fn [] (t/from-time-zone (t/date-time 2021 4 10 12 34 40 000) (t/time-zone-for-id "America/Sao_Paulo")))]
+                  controller.pesos-alimentos/create-pesos-alimentos-by-list (fn [pesos-alimentos] (mock.pesos-alimentos/mock-create-peso-alimentos-by-list pesos-alimentos))]
+
       (let [result (controller.refeicoes/insert-complete-refeicao complete-refeicao-teste)]
         (is (= (count result) 2))
         
